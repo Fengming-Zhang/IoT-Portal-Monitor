@@ -22,7 +22,11 @@ const openNotification = () => {
   notification.open({
     message: '小组成员信息',
     description:
-      '施宇翔 120037910036\n 李嘉昊  120037910024\n陈江涛 120037910014\n王崇宇 120037910040\n王钰霄 020037910001',
+      '张俸铭 121037910013\n \
+       董彦君 121037910037\n \
+       程妍璇 121037910036\n \
+       陈萌 121037910015\n \
+       芮召普 121037910034',
     onClick: () => {
       console.log('Notification Clicked!');
     },
@@ -38,7 +42,8 @@ const Home = () => {
 
   const [data, setData] = useState({
     temperature: 0,
-    humidity: 0
+    humidity: 0,
+    invade_indecator: 1
   })
 
   const [tempHistory, setTempHistory] = useState([])
@@ -60,7 +65,7 @@ const Home = () => {
         detail: { formatter: '{value}℃' },
         min: -10,
         max: 30,
-        axisLine: {            // 坐标轴线  
+        axisLine: {          // 坐标轴线
           lineStyle: {       // 属性lineStyle控制线条样式  
             color: [[0.3, '#63869e'], [0.45, '#91c7ae'], [1, '#c23531']]
           }
@@ -81,7 +86,7 @@ const Home = () => {
         detail: { formatter: '{value}%' },
         min: 0,
         max: 100,
-        axisLine: {            // 坐标轴线  
+        axisLine: {          // 坐标轴线
           lineStyle: {       // 属性lineStyle控制线条样式  
             color: [[0.3, '#63869e'], [0.5, '#91c7ae'], [1, '#c23531']]
           }
@@ -163,7 +168,7 @@ const Home = () => {
 
   const handleClick = async () => {
     try {
-      await postData('http://10.166.18.198:8000/api/temperature-humidity').then(res => {
+      await postData('http://localhost:8000/api/temperature-humidity').then(res => {
         let newHistory = tempHistory
         newHistory.push(res.temperature)
         let newHumiHistory = humiHistory
@@ -224,6 +229,14 @@ const Home = () => {
     return 0
   }
 
+  const isMonitorWarning = () => {
+    if (data.invade_indecator === 1) {
+      return 1
+    } else {
+      return  0
+    }
+  }
+
   const copyToClip = (content, message_) => {
     var aux = document.createElement("textarea");
     aux.value = content
@@ -256,7 +269,7 @@ const Home = () => {
     <div>
       <Layout className="layout">
         <Header style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <div className={css(styles.title)}>疫苗冷链仓储管理平台</div>
+          <div className={css(styles.title)}>什么平台</div>
           <Menu theme="dark" mode="horizontal">
             <Menu.Item key="1" onClick={openNotification}>关于</Menu.Item>
           </Menu>
@@ -276,6 +289,16 @@ const Home = () => {
             ]}
           >
           </PageHeader>
+          {
+            isMonitorWarning() === 1 ?
+            <Alert
+              message="警告"
+              description="有人非法闯入！"
+              type="error"
+              showIcon
+              style={{ marginBottom: '1%', fontWeight: 'bold' }}
+            /> : null
+          }
           {
             isWarning() === 1 ?
               <Alert
@@ -299,13 +322,13 @@ const Home = () => {
                 description="当前获取的湿度高于预警值。"
                 type="warning"
                 showIcon
-                style={{ fontWeight: 'bold' }}
+                style={{ marginBottom: '1%', fontWeight: 'bold' }}
               /> : isHumiWarning() === -1 ? <Alert
                 message="警告"
                 description="当前获取的湿度低于预警值。"
                 type="info"
                 showIcon
-                style={{ fontWeight: 'bold' }}
+                style={{ marginBottom: '1%', fontWeight: 'bold' }}
               /> : null
           }
           <Row>
@@ -325,10 +348,8 @@ const Home = () => {
             </Col>
           </Row>
         </Content>
-        <Footer style={{ textAlign: 'center', backgroundColor: '#001529', color: 'white' }}>Created by Shi Yuxiang, Li Jiahao, Chen Jiangtao, Wang Chongyu and Wang Yuxiao © 2020 </Footer>
+        <Footer style={{ textAlign: 'center', backgroundColor: '#001529', color: 'white' }}>Created by Zhang Fengming, Dong Yanjun, Cheng Yanxuan, Chen Meng and Rui Shaopu © 2021 </Footer>
       </Layout>
-
-
     </div>
   )
 }

@@ -51,6 +51,22 @@
 
 
 
+## Q&A
+
+```bash
+Error: L6050U: The code size of this image exceeds the maximum allowed for this version
+```
+
+- official solution: https://developer.arm.com/documentation/ka002709/latest
+
+- piracy solution: 
+
+  https://blog.csdn.net/qq_20250067/article/details/107619342
+
+  https://www.jianshu.com/p/a9ff5abb9af7
+
+
+
 ## To learn more ...
 
 [Link for Manuals](https://www.ctwing.cn/zdkftj/537)

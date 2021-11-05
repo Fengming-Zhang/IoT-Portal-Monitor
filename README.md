@@ -13,7 +13,7 @@
 
 ## Architecture
 
-![Architecture](.\img\CTWingSKIT_BC28 Architecure.png)
+![Architecture](./img/CTWingSKIT_BC28 Architecure.png)
 
 
 

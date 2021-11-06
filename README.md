@@ -51,6 +51,22 @@
 
 
 
+## AEP Platform Details
+
+Do this each time when the sensor board is powered on.
+
+- Website: https://www.ctwing.cn/
+- Log in with username & password
+- Enter the AEP console
+- Issue instructions:
+  - Device management → Product → Portal Monitor → Device management → Command issuance
+  - issue: set_auto_control & set_report_period
+- View data report and event report:
+  - Device management → Product → Portal Monitor → Device management → Click on the device name
+  - view the corresponding information bar (need to select the time period)
+
+
+
 ## Q&A
 
 ```bash

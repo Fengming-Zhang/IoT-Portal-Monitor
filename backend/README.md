@@ -29,7 +29,7 @@ APP_SECRET = '8KNtazD7Ae'
 MASTER_API_KEY = '308fdaf1c5fb4ff1b020be995c54e26b'
 ```
 
-## Start Service
+## To start backend service
 
 ```bash
 cd ${repo-root}/backend/

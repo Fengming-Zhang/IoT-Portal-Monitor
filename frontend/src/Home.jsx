@@ -35,14 +35,17 @@ const openNotification = () => {
 
 const Home = () => {
 
-  const temp_min = 2
-  const temp_max = 8
+  const temp_min = 20
+  const temp_max = 30
   const humi_min = 30
   const humi_max = 50
 
   const [data, setData] = useState({
     temperature: 0,
     humidity: 0,
+  })
+
+  const [monitor, setMonitor] = useState({
     invade_indecator: 1
   })
 
@@ -51,7 +54,10 @@ const Home = () => {
   const [timeLog, setTimeLog] = useState([])
 
   const [delta, setDelta] = useState(5000)
-  const deltaRef = React.createRef()
+  const [deltaMonitor, setDeltaMonitor] = useState(500)
+
+  const [tmpDelta, setTmpDelta] = useState()
+
   const [date, setDate] = useState(new Date())
 
   const tempOption = {
@@ -66,7 +72,7 @@ const Home = () => {
         min: -10,
         max: 30,
         axisLine: {          // 坐标轴线
-          lineStyle: {       // 属性lineStyle控制线条样式  
+          lineStyle: {       // 属性lineStyle控制线条样式
             color: [[0.3, '#63869e'], [0.45, '#91c7ae'], [1, '#c23531']]
           }
         },
@@ -87,7 +93,7 @@ const Home = () => {
         min: 0,
         max: 100,
         axisLine: {          // 坐标轴线
-          lineStyle: {       // 属性lineStyle控制线条样式  
+          lineStyle: {       // 属性lineStyle控制线条样式
             color: [[0.3, '#63869e'], [0.5, '#91c7ae'], [1, '#c23531']]
           }
         },
@@ -156,10 +162,21 @@ const Home = () => {
     return (
       axios.get(url, data).then(
         (response) => {
-          const datas = response.data
           return {
-            temperature: Number(datas.temperature).toFixed(2),
-            humidity: datas.humidity
+            temperature: Number(response.data.temperature).toFixed(2),
+            humidity: Number(response.data.humidity)
+          }
+        }
+      )
+    )
+  }
+
+  const getMonitorData = (url, data) => {
+    return (
+      axios.get(url, data).then(
+        (response) => {
+          return {
+            invade_indecator: Number(response.data.invade_indecator),
           }
         }
       )
@@ -168,8 +185,7 @@ const Home = () => {
 
   const handleClick = async () => {
     try {
-      await getData('http://192.168.58.133:8000/api/temperature-humidity').then(res => {
-        console.log(res)
+      await getData('http://localhost:8000/api/temperature-humidity').then(res => {
         let newHistory = tempHistory
         newHistory.push(res.temperature)
         let newHumiHistory = humiHistory
@@ -184,19 +200,31 @@ const Home = () => {
     } catch (err) {
       console.log(err)
     }
+  }
 
+  const handleMonitor = async () => {
+    try {
+      await getMonitorData('http://localhost:8000/api/monitor').then(res => {
+        setMonitor(res)
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const changeInterval = (value) =>{
+      setTmpDelta(value)
   }
 
   const handleInterval = () => {
     const regPos = /([1-9]?\d|100)$/
-    if (regPos.test(deltaRef.current.rawInput)) {
-      setDelta(deltaRef.current.rawInput * 1000)
+    if (regPos.test(tmpDelta)) {
+      setDelta(tmpDelta* 1000)
       message.success('修改成功。')
     }
     else {
       message.error('修改失败：数据格式有误（1-100的整数）。')
     }
-
   }
 
   useEffect(() => {
@@ -204,11 +232,16 @@ const Home = () => {
     const timer = setInterval(() => {
       setDate(new Date())
     }, 1000)
-
     return () => clearInterval(id)
   }, [delta])
 
-
+  useEffect(() => {
+    const id = setInterval(() => { handleMonitor() }, deltaMonitor)
+    const timer = setInterval(() => {
+      setDate(new Date())
+    }, 1000)
+    return () => clearInterval(id)
+  }, [deltaMonitor])
 
   const isWarning = () => {
     if (data.temperature > temp_max) {
@@ -231,11 +264,7 @@ const Home = () => {
   }
 
   const isMonitorWarning = () => {
-    if (data.invade_indecator === 1) {
-      return 1
-    } else {
-      return  0
-    }
+    return monitor.invade_indecator
   }
 
   const copyToClip = (content, message_) => {
@@ -258,9 +287,9 @@ const Home = () => {
     {
       let time = timeLog[i].replace(/T/, ' ')
       time = time.replace(/Z/, ' ')
-      let temp_status = tempHistory[i] > temp_max ? '温度过高' : tempHistory[i] < temp_min ? '温度过低' : '温度正常' 
-      let humi_status = humiHistory[i] > humi_max ? '湿度过高' : humiHistory[i] < humi_min ? '湿度过低' : '湿度正常' 
-      res += time + '\t' + tempHistory[i] + '\t' + humiHistory[i] + '\t' + temp_status + '\t' + humi_status + '\n' 
+      let temp_status = tempHistory[i] > temp_max ? '温度过高' : tempHistory[i] < temp_min ? '温度过低' : '温度正常'
+      let humi_status = humiHistory[i] > humi_max ? '湿度过高' : humiHistory[i] < humi_min ? '湿度过低' : '湿度正常'
+      res += time + '\t' + tempHistory[i] + '\t' + humiHistory[i] + '\t' + temp_status + '\t' + humi_status + '\n'
     }
     copyToClip(res, null)
   }
@@ -283,7 +312,7 @@ const Home = () => {
             tags={<Tag color='green'>Running</Tag>}
             extra={[
               <Text>自动拉取间隔(秒)</Text>,
-              <InputNumber min={1} max={100} defaultValue={delta / 1000} ref={deltaRef}></InputNumber>,
+              <InputNumber min={1} max={100} defaultValue={delta / 1000} onChange={changeInterval}></InputNumber>,
               <Button onClick={handleInterval}>修改间隔</Button>,
               <Button type="primary" onClick={handleClick}>读取数据</Button>,
             <Button onClick={handleDownloadLog} icon={<DownloadOutlined />}>复制数据到剪贴板</Button>

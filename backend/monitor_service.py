@@ -77,11 +77,11 @@ def monitor():
     })
     return result
 
-@app.route('/api/monitor/period', methods=['GET'])
+@app.route('/api/monitor/month', methods=['GET'])
 def monitor_period():
     invades = []
     today = datetime.date.today()
-    for i in range(1, 8):
+    for i in range(30, 0, -1):
         date = today - datetime.timedelta(days=i)
         # print(date.strftime("%Y-%m-%d") + " 00:00:00")
         # print(date.strftime("%Y-%m-%d") + " 23:59:59")

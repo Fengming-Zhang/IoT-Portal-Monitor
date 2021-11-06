@@ -94,7 +94,7 @@ def monitor_period():
             'deviceId': DEVICE_ID,
             'startTime': start_timestamp,
             'endTime': end_timestamp,
-            'pageSize': '10'
+            'pageSize': '100'
         })
         monitor_response = apis.aep_device_event.QueryDeviceEventList(APP_KEY, APP_SECRET, MASTER_API_KEY, body_json)
         monitor_list = json.loads(monitor_response)['result']['list']

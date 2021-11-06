@@ -81,7 +81,7 @@ def monitor():
 def monitor_period():
     invades = []
     today = datetime.date.today()
-    for i in range(30, 0, -1):
+    for i in range(30, -1, -1):
         date = today - datetime.timedelta(days=i)
         # print(date.strftime("%Y-%m-%d") + " 00:00:00")
         # print(date.strftime("%Y-%m-%d") + " 23:59:59")

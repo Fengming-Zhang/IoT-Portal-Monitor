@@ -49,12 +49,49 @@ const Home = () => {
     invade_indecator: 1
   })
 
+  const tmpoption = {
+    title: {
+      text: '非法入侵统计'
+    },
+    tooltip: {
+      trigger: 'axis',
+      position: function (pt) {
+        return [pt[0], '10%']
+      },
+      axisPointer: {
+        animation: false
+      }
+    },
+    xAxis: {
+      type: 'time',
+      splitLine: {
+        show: false
+      }
+    },
+    yAxis: {
+      type: 'value',
+      boundaryGap: [0, '100%'],
+      splitLine: {
+        show: false
+      }
+    },
+    series: [
+      {
+        name: 'Data',
+        type: 'line',
+        showSymbol: false,
+        data: null
+      }
+    ]
+  }
   const [tempHistory, setTempHistory] = useState([])
   const [humiHistory, setHumiHistory] = useState([])
+  const [monitorOption, setMonitorOption] = useState(tmpoption)
   const [timeLog, setTimeLog] = useState([])
 
   const [delta, setDelta] = useState(5000)
   const [deltaMonitor, setDeltaMonitor] = useState(500)
+  const [deltaMonitorMonth, setDeltaMonitorMonth] = useState(3000)
 
   const [tmpDelta, setTmpDelta] = useState()
 
@@ -182,10 +219,72 @@ const Home = () => {
       )
     )
   }
+  const handleMonitorHistory = async () => {
+    try {
+      let base = new Date() - 24*3600*1000*31;
+      let oneDay = 24 * 3600 * 1000;
+      let number = [];
+      await getMonitorHistory('http://192.168.58.133:8000/api/monitor/month').then(res => {
+        // console.log(res)
+        for (let i = 0; i < 31; i++) {
+          let now = new Date((base += oneDay));
+          number.push([now, res[i]]);
+        }
+        const option = {
+          title: {
+            text: '非法入侵统计'
+          },
+          tooltip: {
+            trigger: 'axis',
+            position: function (pt) {
+              return [pt[0], '10%']
+            },
+            axisPointer: {
+              animation: false
+            }
+          },
+          xAxis: {
+            type: 'time',
+            splitLine: {
+              show: false
+            }
+          },
+          yAxis: {
+            type: 'value',
+            boundaryGap: [0, '100%'],
+            splitLine: {
+              show: false
+            }
+          },
+          series: [
+            {
+              name: 'Data',
+              type: 'line',
+              showSymbol: false,
+              data: number
+            }
+          ]
+        }
+        setMonitorOption(option)
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
+  
+  const getMonitorHistory = (url, data) => {
+    return (
+      axios.get(url, data).then(
+        (response) => {
+          return response.data
+        }
+      )
+    )
+  }
   const handleClick = async () => {
     try {
-      await getData('http://localhost:8000/api/temperature-humidity').then(res => {
+      await getData('http://192.168.58.133:8000/api/temperature-humidity').then(res => {
         let newHistory = tempHistory
         newHistory.push(res.temperature)
         let newHumiHistory = humiHistory
@@ -204,7 +303,7 @@ const Home = () => {
 
   const handleMonitor = async () => {
     try {
-      await getMonitorData('http://localhost:8000/api/monitor').then(res => {
+      await getMonitorData('http://192.168.58.133:8000/api/monitor').then(res => {
         setMonitor(res)
       })
     } catch (err) {
@@ -242,6 +341,14 @@ const Home = () => {
     }, 1000)
     return () => clearInterval(id)
   }, [deltaMonitor])
+
+  useEffect(() => {
+    const id = setInterval(() => { handleMonitorHistory() }, deltaMonitorMonth)
+    const timer = setInterval(() => {
+      setDate(new Date())
+    }, 1000)
+    return () => clearInterval(id)
+  }, [deltaMonitorMonth])
 
   const isWarning = () => {
     if (data.temperature > temp_max) {
@@ -375,6 +482,11 @@ const Home = () => {
             </Col>
             <Col span={12}>
               <ReactEcharts option={getHumiOption()} style={{ height: '500px' }} />
+            </Col>
+          </Row>
+          <Row>
+            <Col span={24}>
+              <ReactEcharts option={monitorOption} style={{ height: '500px' }} />
             </Col>
           </Row>
         </Content>

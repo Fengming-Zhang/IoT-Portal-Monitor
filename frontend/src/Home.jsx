@@ -152,14 +152,14 @@ const Home = () => {
     }
   }
 
-  const postData = (url, data) => {
+  const getData = (url, data) => {
     return (
       axios.get(url, data).then(
         (response) => {
-          const datas = response.data.split(',')
+          const datas = response.data
           return {
-            temperature: (Number(datas[0])- 0).toFixed(2) ,
-            humidity: Number(datas[1])
+            temperature: Number(datas.temperature).toFixed(2),
+            humidity: datas.humidity
           }
         }
       )
@@ -168,14 +168,15 @@ const Home = () => {
 
   const handleClick = async () => {
     try {
-      await postData('http://localhost:8000/api/temperature-humidity').then(res => {
+      await getData('http://192.168.58.133:8000/api/temperature-humidity').then(res => {
+        console.log(res)
         let newHistory = tempHistory
         newHistory.push(res.temperature)
         let newHumiHistory = humiHistory
         newHumiHistory.push(res.humidity)
         let newTimeLog = timeLog
         newTimeLog.push(new Date().toISOString())
-        console.log('date:', newTimeLog)
+        // console.log('date:', newTimeLog)
         setTempHistory(newHistory)
         setHumiHistory(newHumiHistory)
         setData(res)

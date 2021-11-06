@@ -1,4 +1,5 @@
 # encoding=utf-8
+from datetime import datetime
 import sys
 import json
 import time
@@ -76,7 +77,43 @@ def monitor():
     })
     return result
 
+@app.route('/api/monitor/period', methods=['GET'])
+def monitor_period():
+    invades = []
+    today = datetime.date.today()
+    for i in range(1, 8):
+        date = today - datetime.timedelta(days=i)
+        # print(date.strftime("%Y-%m-%d") + " 00:00:00")
+        # print(date.strftime("%Y-%m-%d") + " 23:59:59")
+        start_timestamp = time.mktime(time.strptime(date.strftime("%Y-%m-%d") + " 00:00:00",'%Y-%m-%d %H:%M:%S'))
+        end_timestamp = time.mktime(time.strptime(date.strftime("%Y-%m-%d") + " 23:59:59",'%Y-%m-%d %H:%M:%S'))
+        # print(start_timestamp)
+        # print(end_timestamp)
+        body_json = json.dumps({
+            'productId': PRODUCT_ID,
+            'deviceId': DEVICE_ID,
+            'startTime': start_timestamp,
+            'endTime': end_timestamp,
+            'pageSize': '10'
+        })
+        monitor_response = apis.aep_device_event.QueryDeviceEventList(APP_KEY, APP_SECRET, MASTER_API_KEY, body_json)
+        monitor_list = json.loads(monitor_response)['result']['list']
+        invade_indicator = 0
+        for event_dict in monitor_list:
+            event_content = json.loads(event_dict['eventContent'])
+            if event_content['ir_sensor_data'] == 1:
+                invade_indicator += 1
+        # print('----------------')
+        # print(invade_indicator)
+        invades.append(invade_indicator)
+    # print(invades)
 
+    ret = '['
+    for invade in invades:
+        ret += str(invade) + ','
+    ret = ret[:-1] + ']'
+    # print(ret)
+    return ret
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)

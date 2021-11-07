@@ -36,9 +36,9 @@ const openNotification = () => {
 const Home = () => {
 
   const temp_min = 20
-  const temp_max = 30
+  const temp_max = 32
   const humi_min = 30
-  const humi_max = 50
+  const humi_max = 60
 
   const [data, setData] = useState({
     temperature: 0,
@@ -89,7 +89,7 @@ const Home = () => {
   const [monitorOption, setMonitorOption] = useState(tmpoption)
   const [timeLog, setTimeLog] = useState([])
 
-  const [delta, setDelta] = useState(5000)
+  const [delta, setDelta] = useState(1000)
   const [deltaMonitor, setDeltaMonitor] = useState(500)
   const [deltaMonitorMonth, setDeltaMonitorMonth] = useState(3000)
 
@@ -106,11 +106,11 @@ const Home = () => {
         name: '温度',
         type: 'gauge',
         detail: { formatter: '{value}℃' },
-        min: -10,
-        max: 30,
+        min: 10,
+        max: 40,
         axisLine: {          // 坐标轴线
           lineStyle: {       // 属性lineStyle控制线条样式
-            color: [[0.3, '#63869e'], [0.45, '#91c7ae'], [1, '#c23531']]
+            color: [[0.33, '#63869e'], [0.73, '#91c7ae'], [1, '#c23531']]
           }
         },
         data: [{ value: data.temperature, name: '温度' }]
@@ -131,7 +131,7 @@ const Home = () => {
         max: 100,
         axisLine: {          // 坐标轴线
           lineStyle: {       // 属性lineStyle控制线条样式
-            color: [[0.3, '#63869e'], [0.5, '#91c7ae'], [1, '#c23531']]
+            color: [[0.3, '#63869e'], [0.6, '#91c7ae'], [1, '#c23531']]
           }
         },
         data: [{ value: data.humidity, name: '湿度' }]
@@ -224,7 +224,7 @@ const Home = () => {
       let base = new Date() - 24*3600*1000*31;
       let oneDay = 24 * 3600 * 1000;
       let number = [];
-      await getMonitorHistory('http://192.168.58.133:8000/api/monitor/month').then(res => {
+      await getMonitorHistory('http://localhost:8000/api/monitor/month').then(res => {
         // console.log(res)
         for (let i = 0; i < 31; i++) {
           let now = new Date((base += oneDay));
@@ -284,7 +284,7 @@ const Home = () => {
   }
   const handleClick = async () => {
     try {
-      await getData('http://192.168.58.133:8000/api/temperature-humidity').then(res => {
+      await getData('http://localhost:8000/api/temperature-humidity').then(res => {
         let newHistory = tempHistory
         newHistory.push(res.temperature)
         let newHumiHistory = humiHistory
@@ -303,7 +303,7 @@ const Home = () => {
 
   const handleMonitor = async () => {
     try {
-      await getMonitorData('http://192.168.58.133:8000/api/monitor').then(res => {
+      await getMonitorData('http://localhost:8000/api/monitor').then(res => {
         setMonitor(res)
       })
     } catch (err) {
@@ -406,7 +406,7 @@ const Home = () => {
     <div>
       <Layout className="layout">
         <Header style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <div className={css(styles.title)}>什么平台</div>
+          <div className={css(styles.title)}>智能环境检测门控系统</div>
           <Menu theme="dark" mode="horizontal">
             <Menu.Item key="1" onClick={openNotification}>关于</Menu.Item>
           </Menu>
